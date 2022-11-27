@@ -1,51 +1,36 @@
 const express = require("express");
-const cors = require("cors");
-const mongoose = require("mongoose");
-const authRoutes = require("./routes/auth");
-const messageRoutes = require("./routes/messages");
 const app = express();
-const socket = require("socket.io");
-require("dotenv").config();
-
+const http = require("http");
+const cors = require("cors");
+const { Server } = require("socket.io");
 app.use(cors());
-app.use(express.json());
 
-mongoose
-  .connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("DB Connetion Successfull");
-  })
-  .catch((err) => {
-    console.log(err.message);
-  });
+const server = http.createServer(app);
 
-app.use("/api/auth", authRoutes);
-app.use("/api/messages", messageRoutes);
-
-const server = app.listen(process.env.PORT, () =>
-  console.log(`Server started on ${process.env.PORT}`)
-);
-const io = socket(server, {
+const io = new Server(server, {
   cors: {
-    origin: "*",
-    credentials: true,
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
   },
 });
 
-global.onlineUsers = new Map();
 io.on("connection", (socket) => {
-  global.chatSocket = socket;
-  socket.on("add-user", (userId) => {
-    onlineUsers.set(userId, socket.id);
+  console.log(`User Connected: ${socket.id}`);
+
+  socket.on("join_room", (data) => {
+    socket.join(data);
+    console.log(`User with ID: ${socket.id} joined room: ${data}`);
   });
 
-  socket.on("send-msg", (data) => {
-    const sendUserSocket = onlineUsers.get(data.to);
-    if (sendUserSocket) {
-      socket.to(sendUserSocket).emit("msg-recieve", data.msg);
-    }
+  socket.on("send_message", (data) => {
+    socket.to(data.room).emit("receive_message", data);
   });
+
+  socket.on("disconnect", () => {
+    console.log("User Disconnected", socket.id);
+  });
+});
+
+server.listen(3001, () => {
+  console.log("SERVER RUNNING");
 });
