@@ -9,7 +9,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://chat-room-client.zeabur.app",
+    origin: "https://hower.zeabur.app",
     methods: ["GET", "POST"],
   },
 });
@@ -31,7 +31,7 @@ io.on("connection", (socket) => {
   });
 });
 
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 8090
 
 server.listen(port, () => {
   console.log("SERVER RUNNING", port);
