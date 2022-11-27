@@ -9,7 +9,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "https://socket-react-client.zeabur.app",
     methods: ["GET", "POST"],
   },
 });
