@@ -9,7 +9,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://chat-room-client.zeabur.app",
+    origin: "https://chat-room-client.zeabur.app",
     methods: ["GET", "POST"],
   },
 });
